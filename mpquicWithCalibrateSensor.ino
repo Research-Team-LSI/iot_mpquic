@@ -38,8 +38,8 @@ const int tipe_data = 3;
 const int metode_kirim_data = 1;  
 const int config_server = 1;      
 
-int t;
-int h;
+float t;  // Changed to float for decimal precision
+float h;  // Changed to float for decimal precision
 int mq135Value;
 int mq4Value;
 int mq137Value;
@@ -51,8 +51,8 @@ unsigned long previousMillis = 0;
 const long interval = 60000;
 
 // Calibration references
-float referenceTemperature = 30.1;  // Reference temperature in °C
-float referenceHumidity = 69.0;     // Reference humidity in %
+float referenceTemperature = 30.2;  // Reference temperature in °C
+float referenceHumidity = 69;     // Reference humidity in %
 
 float temperatureOffset = 0.0;
 float humidityOffset = 0.0;
@@ -189,10 +189,10 @@ void tampilkan_konfigurasi() {
   delay(5);
 }
 
-void dataSensorToHTTP(int idalat, int nilaisensor, String URL) {
+void dataSensorToHTTP(int idalat, float nilaisensor, String URL) {
   getCalibratedData();
   delay(20);
-  String postData = "id_alat=" + String(idalat) + "&nilai=" + String(nilaisensor);
+  String postData = "id_alat=" + String(idalat) + "&nilai=" + String(nilaisensor, 1);  // Keep 1 decimal place
 
   WiFiClientSecure client;
   client.setInsecure();  // Disable SSL certificate verification
@@ -254,9 +254,12 @@ void getDataSensor() {
     h = event.relative_humidity;
     delay(10);
 
-    updateSensorMQ135BeforeGet();
-    updateSensorMQ4BeforeGet();
-    delay(5);
+    mq4Value = analogRead(MQ4PIN);
+    delay(10);
+    mq135Value = analogRead(MQ135PIN);
+    delay(10);
+    mq137Value = analogRead(MQ137PIN);
+    delay(10);
   }
   if (tipe_data == 2) {
     t = random(29, 31);
@@ -288,4 +291,5 @@ void sendDataSensor() {
   Serial.print("Sending Humidity Data ");
   dataSensorToHTTP(id_alat_iot, h, URL_humidity);
   delay(20);
+
 }
