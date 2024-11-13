@@ -17,8 +17,8 @@
 
 #define DHTTYPE DHT11  // DHT 11
 
-const char* ssid = "RIAN";
-const char* password = "rianwelut";
+const char* ssid = "Redmi Note 12 Pro";
+const char* password = "oktabrians";
 
 String URL_temperature = "https://mpquic.research-ai.my.id/api/device/temperature";
 String URL_metana = "https://mpquic.research-ai.my.id/api/device/metana";
@@ -51,8 +51,8 @@ unsigned long previousMillis = 0;
 const long interval = 60000;
 
 // Calibration references
-float referenceTemperature = 30.2;  // Reference temperature in °C
-float referenceHumidity = 69;     // Reference humidity in %
+float referenceTemperature = 29.1;  // Reference temperature in °C
+float referenceHumidity = 66;     // Reference humidity in %
 
 float temperatureOffset = 0.0;
 float humidityOffset = 0.0;
@@ -74,8 +74,13 @@ void getCalibratedData() {
   t = rawTemperature + temperatureOffset;
   h = rawHumidity + humidityOffset;
 
+  Serial.print("Raw Temperature: ");
+  Serial.println(rawTemperature);
   Serial.print("Calibrated Temperature: ");
   Serial.println(t);
+
+  Serial.print("Raw Humidity: ");
+  Serial.println(rawHumidity);
   Serial.print("Calibrated Humidity: ");
   Serial.println(h);
 }
