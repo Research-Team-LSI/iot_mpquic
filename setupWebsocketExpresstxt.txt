@@ -1,0 +1,67 @@
+Menyiapkan laravel untuk websocket dengan express dan cors
+
+1. Siapkan Server WebSocket di Node.js
+Install Dependencies: Buka terminal di root proyek Laravel dan instal paket yang dibutuhkan:
+
+npm init -y
+npm install ws express cors
+
+2. Di dalam root proyek Laravel, buat file server.cjs untuk server WebSocket.
+Berikut adalah kode untuk mengatur server WebSocket menggunakan Node.js:
+// javascript
+
+const WebSocket = require('ws');
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Endpoint HTTP untuk menerima data dari ESP32
+app.post('/data', express.json(), (req, res) => {
+    const { temperature, humidity } = req.body;
+
+    // Kirim data ke semua klien WebSocket
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ temperature, humidity }));
+        }
+    });
+    res.json({ status: 'success' });
+});
+
+// Untuk mengetahui kapan klien terhubung
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+});
+
+// Jalankan server pada port 3000
+server.listen(3000, () => {
+    console.log('WebSocket server running on port 3000');
+});
+
+Penjelasan Kode:
+
+Server menggunakan HTTP POST untuk menerima data dari ESP32 di endpoint /data.
+Setiap data baru akan dikirim ke semua klien yang terhubung melalui WebSocket.
+Server WebSocket berjalan pada port 3000.
+
+3. Jalankan Server WebSocket
+Untuk menjalankan server WebSocket, buka terminal dan gunakan perintah berikut:
+
+node server.cjs
+
+Atau tambahkan di package.json:
+
+json
+Copy code
+"scripts": {
+    "start-websocket": "node server.js"
+}
+
+Lalu jalankan:
+
+npm run start-websocket
