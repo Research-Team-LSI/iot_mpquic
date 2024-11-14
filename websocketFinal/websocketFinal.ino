@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <time.h>
 #include <WiFiClientSecure.h>  // For HTTPS support
 #include <HTTPClient.h>
 #include <Adafruit_Sensor.h>
@@ -17,6 +18,11 @@
 
 #define DHTTYPE DHT11  // DHT 11
 
+// NTP server details
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 25200;  // Adjust for your timezone, e.g., 7 hours for UTC+7
+const int   daylightOffset_sec = 0;
+// wifi details
 const char* ssid = "Redmi Note 12 Pro";
 const char* password = "oktabrians";
 
@@ -111,6 +117,9 @@ void setup() {
   dht.humidity().getEvent(&event);
   float initialHumidity = event.relative_humidity;
   calibrateSensor(initialTemperature, initialHumidity);
+
+   // Initialize NTP
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 void loop() {
@@ -126,29 +135,61 @@ void sendDataSensor() {
   delay(20);
 }
 
+String getFormattedTimestamp() {
+  struct tm timeInfo;
+  if (!getLocalTime(&timeInfo)) {
+    Serial.println("Failed to obtain time");
+    return "";
+  }
+
+  // Format waktu tanpa milidetik
+  char buffer[30];
+  strftime(buffer, sizeof(buffer), "%d/%m/%Y, %H:%M:%S", &timeInfo);
+
+  // Dapatkan milidetik tiga digit
+  int milliseconds = millis() % 1000;
+  String millisecondsStr = String(milliseconds);
+
+  // Tambahkan padding jika milidetik kurang dari tiga digit
+  if (milliseconds < 10) {
+    millisecondsStr = "00" + millisecondsStr;
+  } else if (milliseconds < 100) {
+    millisecondsStr = "0" + millisecondsStr;
+  }
+
+  // Gabungkan timestamp dengan milidetik
+  String formattedTimestamp = String(buffer) + ":" + millisecondsStr;
+  return formattedTimestamp;
+}
+
+
 void dataSensorToHTTP(float nilaisensor, float nilaisensor2, String URL) {
   getCalibratedData();
   delay(20);
-  String postData = "{\"temperature\": " + String(t, 1) + ", \"humidity\": " + String((int)h) + "}";
+  
+  // Get the current timestamp
+  String timestamp = getFormattedTimestamp();
+
+  // Construct JSON payload
+  String postData = "{\"id_alat\": " + String(id_alat_iot) +
+                    ", \"temperature\": " + String(t, 1) +
+                    ", \"humidity\": " + String(h, 1) +
+                    ", \"kirimdata\": \"" + timestamp + "\"}";
 
   WiFiClient client;
-
   HTTPClient http;
   http.begin(client, URL);
   http.addHeader("Content-Type", "application/json");
 
   int httpCode = http.POST(postData);
 
-  // Check the HTTP response code
   if (httpCode > 0) {
-    // Success
     Serial.println("Data sent successfully!");
     Serial.println("Response code: " + String(httpCode));
     String payload = http.getString();
     Serial.println("Server response: " + payload);
     blinkled();
   } else {
-    // Failure
     Serial.println("Error in sending data.");
     Serial.print("HTTP error code: ");
     Serial.println(httpCode);
@@ -156,6 +197,7 @@ void dataSensorToHTTP(float nilaisensor, float nilaisensor2, String URL) {
 
   http.end();
 }
+
 
 void blinkled() {
   analogWrite(LEDPIN_KIRIMDATA, 200);
