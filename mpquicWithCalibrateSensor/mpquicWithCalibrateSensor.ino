@@ -20,23 +20,29 @@
 const char* ssid = "Redmi Note 12 Pro";
 const char* password = "oktabrians";
 
-String URL_temperature = "https://mpquic.research-ai.my.id/api/device/temperature";
-String URL_metana = "https://mpquic.research-ai.my.id/api/device/metana";
-String URL_humidity = "https://mpquic.research-ai.my.id/api/device/humidity";
-String URL_dioksida = "https://mpquic.research-ai.my.id/api/device/dioksida";
-String URL_amonia = "https://mpquic.research-ai.my.id/api/device/amonia";
+// String URL_temperature = "https://mpquic.research-ai.my.id/api/device/temperature";
+// String URL_metana = "https://mpquic.research-ai.my.id/api/device/metana";
+// String URL_humidity = "https://mpquic.research-ai.my.id/api/device/humidity";
+// String URL_dioksida = "https://mpquic.research-ai.my.id/api/device/dioksida";
+// String URL_amonia = "https://mpquic.research-ai.my.id/api/device/amonia";
 
-String ip_local = "192.168.100.3";
-String URL_temperature_local = "http://" + ip_local + "/is4ac_local/temperature_data.php";
+String URL_temperature = "https://192.168.180.140/api/device/temperature";
+// String URL_metana = "https://mpquic.research-ai.my.id/api/device/metana";
+String URL_humidity = "https://192.168.180.140/api/device/humidity";
+// String URL_dioksida = "https://mpquic.research-ai.my.id/api/device/dioksida";
+// String URL_amonia = "https://mpquic.research-ai.my.id/api/device/amonia";
+
+String ip_local = "192.168.180.140";
+String URL_temperature_local = "http://" + ip_local + "/api/device/temperature";
 String URL_metana_local = "http://" + ip_local + "/is4ac_local/metana_data.php";
-String URL_humidity_local = "http://" + ip_local + "/is4ac_local/humidity_data.php";
+String URL_humidity_local = "http://" + ip_local + "/api/device/humidity";
 String URL_dioksida_local = "http://" + ip_local + "/is4ac_local/dioksida_data.php";
 String URL_amonia_local = "http://" + ip_local + "/is4ac_local/amonia_data.php";
 
 int id_alat_iot = 1;              
 const int tipe_data = 3;          
 const int metode_kirim_data = 1;  
-const int config_server = 1;      
+const int config_server = 2;      
 
 float t;  // Changed to float for decimal precision
 float h;  // Changed to float for decimal precision
@@ -48,11 +54,11 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 sensors_event_t event;
 
 unsigned long previousMillis = 0;
-const long interval = 60000;
+const long interval = 5000;
 
 // Calibration references
 float referenceTemperature = 29.1;  // Reference temperature in °C
-float referenceHumidity = 66;     // Reference humidity in %
+float referenceHumidity =73;     // Reference humidity in %
 
 float temperatureOffset = 0.0;
 float humidityOffset = 0.0;
@@ -290,11 +296,11 @@ void getDataSensor() {
 
 void sendDataSensor() {
   Serial.print("Sending Temperature Data ");
-  dataSensorToHTTP(id_alat_iot, t, URL_temperature);
+  dataSensorToHTTP(id_alat_iot, t, URL_temperature_local);
   delay(20);
 
   Serial.print("Sending Humidity Data ");
-  dataSensorToHTTP(id_alat_iot, h, URL_humidity);
+  dataSensorToHTTP(id_alat_iot, h, URL_humidity_local);
   delay(20);
 
 }

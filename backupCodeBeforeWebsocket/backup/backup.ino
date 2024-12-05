@@ -20,9 +20,9 @@
 const char* ssid = "Redmi Note 12 Pro";
 const char* password = "oktabrians";
 
-String URL_temperature = "https://mpquic.research-ai.my.id/api/device/temperature";
+String URL_temperature = "http://192.168.180.140:8000/api/device/temperature";
 String URL_metana = "https://mpquic.research-ai.my.id/api/device/metana";
-String URL_humidity = "https://mpquic.research-ai.my.id/api/device/humidity";
+String URL_humidity = "http://192.168.180.140:8000/api/device/humidity";
 String URL_dioksida = "https://mpquic.research-ai.my.id/api/device/dioksida";
 String URL_amonia = "https://mpquic.research-ai.my.id/api/device/amonia";
 
@@ -48,7 +48,7 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 sensors_event_t event;
 
 unsigned long previousMillis = 0;
-const long interval = 60000;
+const long interval = 2000;
 
 // Calibration references
 float referenceTemperature = 29.1;  // Reference temperature in °C
@@ -142,7 +142,7 @@ void loop() {
   delay(10);
   getCalibratedData();
   sendDataSensor();
-  delay(60000);
+  delay(1000);
 }
 
 void cek_sensor_mq() {
@@ -199,9 +199,10 @@ void dataSensorToHTTP(int idalat, float nilaisensor, String URL) {
   delay(20);
   String postData = "id_alat=" + String(idalat) + "&nilai=" + String(nilaisensor, 1);  // Keep 1 decimal place
 
-  WiFiClientSecure client;
-  client.setInsecure();  // Disable SSL certificate verification
+  // WiFiClientSecure client;
+  // client.setInsecure();  // Disable SSL certificate verification
 
+  WiFiClient client;
   HTTPClient http;
   http.begin(client, URL);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");

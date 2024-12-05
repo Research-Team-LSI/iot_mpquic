@@ -26,7 +26,7 @@ const int   daylightOffset_sec = 0;
 const char* ssid = "Redmi Note 12 Pro";
 const char* password = "oktabrians";
 
-String URL_temperature = "http://192.168.177.35:3000/data";
+String URL_temperature = "http://192.168.180.140:3000/data";
 
 int id_alat_iot = 1;
 const int tipe_data = 3;
